@@ -1,0 +1,32 @@
+import requests
+import discord
+
+client = discord.Client()
+
+@client.event
+async def on_message(message):
+    if message.content.startswith('.refresh'):
+        # Get the user's .ROBLOSECURITY cookie from the message
+        cookie = message.content.split(' ')[1]
+        
+        # Set up the proxy information
+        proxies = {
+            'http': 'http://your-proxy-address:port',
+            'https': 'http://your-proxy-address:port'
+        }
+        
+        # Make a POST request to the Roblox login page with the cookie and proxy information
+        response = requests.post('https://www.roblox.com/newlogin', headers={'Cookie': f'{cookie}'}, proxies=proxies)
+        
+        # Check the response to see if the login was successful
+        if response.status_code == 200:
+            # Get the new .ROBLOSECURITY cookie from the response
+            new_cookie = response.cookies['ROBLOSECURITY']
+            
+            # Send the new cookie back to the user via Discord
+            await message.channel.send(f'Your new .ROBLOSECURITY cookie is: {new_cookie}')
+        else:
+            # There was an error logging in, so inform the user
+            await message.channel.send('There was an error logging in. Please try again.')
+
+client.run('your-bot-token')
